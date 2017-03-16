@@ -60,8 +60,12 @@ end
 
 app.handle_error = function(self, err, trace)
   ngx.log(ngx.ERR, err.."\n"..trace)
-  -- We just logged the error so no need to give it to responses and log it twice
-  return responses.send_HTTP_INTERNAL_SERVER_ERROR()
+  if err and err:match("don't know how to respond to") then
+    return responses.send_HTTP_METHOD_NOT_ALLOWED()
+  else
+    -- We just logged the error so no need to give it to responses and log it twice
+    return responses.send_HTTP_INTERNAL_SERVER_ERROR()
+  end
 end
 
 app:before_filter(function(self)
